@@ -1,12 +1,15 @@
-import { Box, Button, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, TextField } from '@mui/material'
+import { Box, Button, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, TextField, Tooltip } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { DesktopDatePicker } from '@mui/x-date-pickers';
 import { getDayOfYear, getYear } from 'date-fns';
 
 import { ItemSelection } from '../../assets/ProductOtions';
 import _productList from "../../assets/products.json" // cast as array of ItemSelections
+import _locations from '../../assets/locations.json'
+import { location } from '../../types/location';
 
 const productList = _productList as ItemSelection[];
+const locations = _locations as location[];
 
 // Scanner input
   // five digit Product code:  12345
@@ -97,6 +100,11 @@ export default function ProductInput() {
       }
       case 'cut-selector': {
         setCut(+value);
+        break;
+      }
+      case 'location-selector': {
+        setProcessor(value);
+        break;
       }
     }
   }
@@ -115,7 +123,7 @@ export default function ProductInput() {
     setProductCode('')
     setScanner('');
     setLotCode('');
-    setProcessor('');
+    setProcessor(undefined);
     setWeight('');
   }
 
@@ -147,6 +155,7 @@ export default function ProductInput() {
 
       <Grid container display='flex' direction='row' spacing={3} sx={{ marginTop: .5}} >
         <Grid item sx={{ marginTop: '-8px' }}>
+          {/* Use the index for Meat and Cut because we will need to calculate the product code */}
           <InputLabel id="meat-selector-label">Meat</InputLabel>
           <Select
             labelId="meat-selector-label"
@@ -200,20 +209,28 @@ export default function ProductInput() {
             />
           </FormControl>
         </Grid>
-        <Grid item>
-          <TextField
-            error={!!(processor && !regex.test(processor))}
-            value={processor}
-            id='processor'
-            type='text'
-            placeholder='processor'
-            onChange={handleChange}
-            inputProps={{ maxLength: 2}}
-            sx= {{
-              margin: 2
-            }}
+        <Grid item sx={{ marginTop: '-8px' }}>
+          <InputLabel id='location-selector-label'>Origin Location</InputLabel>
+          <Select
+            id='location-selector'
+            labelId='location-selector-label'
+            value={processor || 'none'}
             disabled={!!scanner}
-          />
+            name='location-selector'
+            onChange={handleSelect}
+            sx={{ minWidth: 200 }}
+          >
+            {
+              locations.map((location) => (
+                <MenuItem
+                  value={location.id}
+                  key={location.address}
+                >
+                  {location.address}
+                </MenuItem>
+              ))
+            }
+          </Select>
         </Grid>
         <Grid item>
           <FormControl>

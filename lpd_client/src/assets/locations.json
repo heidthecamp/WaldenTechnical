@@ -1,14 +1,22 @@
 [
   {
-    "id": 1,
+    "id": "01",
     "address": "Tuxbery, MA"
   },
   {
-    "id": 2,
+    "id": "02",
     "address": "Burlington, VT"
   },
   {
-    "id": 3,
+    "id": "03",
     "address": "Albany, NY"
+  },
+  {
+    "id": "04",
+    "address": "Protland, ME"
+  },
+  {
+    "id": "00",
+    "address": "UNKNOWN"
   }
 ]
