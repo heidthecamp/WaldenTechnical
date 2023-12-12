@@ -1,12 +1,14 @@
-import { Box, Button, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, TextField, Tooltip } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import { Box, Button, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, TextField } from '@mui/material'
+import React, { useContext, useEffect, useState } from 'react'
 import { DesktopDatePicker } from '@mui/x-date-pickers';
-import { getDayOfYear, getYear } from 'date-fns';
 
 import { ItemSelection } from '../../assets/ProductOtions';
 import _productList from "../../assets/products.json" // cast as array of ItemSelections
 import _locations from '../../assets/locations.json'
 import { location } from '../../types/location';
+import { dateToJulian } from '../../utils/julian';
+import { productContext } from '../../context/productContext';
+import { getIndexPairFromCode } from '../../utils/product';
 
 const productList = _productList as ItemSelection[];
 const locations = _locations as location[];
@@ -22,33 +24,24 @@ const locations = _locations as location[];
 
 // capture prduct, lot, processing plant, weight
 export default function ProductInput() {
-  const regex = new RegExp(/^(?=.*[0-9])[0-9]+$/);
+
+  const product = useContext(productContext);
+
+  const numericRegex = new RegExp(/^(?=.*[0-9])[0-9]+$/);
   
   const [scanner, setScanner] = useState<string | undefined>();
-  
-  // 5 digits
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [productCode, setProductCode] = useState<string | undefined>();
-
-  // 5 digits (2 digit year, 3 digit day)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [lotCode, setLotCode] = useState<string | undefined>();
-
-  // 2 digits 
-  const [processor, setProcessor] = useState<string | undefined>();
-
-  // 4 digits
-  const [weight, setWeight] = useState<string | undefined>();
 
   const [meat, setMeat] = useState<number>();
   const [cut, setCut] = useState<number>();
 
   useEffect(() => {
-    if (meat !== undefined && cut !== undefined){
+    if (!scanner && meat !== undefined && cut !== undefined){
       const code:string = productList[meat].cuts[cut].code;
-      setProductCode(code)
+      product.updateProductCode(code);
+    } else if (!scanner) {
+      product.updateProductCode(undefined);
     }
-  }, [cut, meat, setProductCode, productList])
+  }, [cut, meat, product, scanner])
   
 
   const handleScarnner = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,10 +49,19 @@ export default function ProductInput() {
     const { value } = e.target
 
     setScanner(value)
-    setProductCode(value.slice(0, 5));
-    setLotCode(value.slice(5, 10));
-    setProcessor(value.slice(10, 12));
-    setWeight(value.slice(12, 16));
+
+    const pair = getIndexPairFromCode(value.slice(0, 5))
+
+    if(pair !== undefined) {
+      setMeat(pair[0]);
+      setCut(pair[1]);
+      
+    }
+
+    product.updateProductCode(value.slice(0, 5));
+    product.updateLot(value.slice(5, 10));
+    product.updateOriginProcessor(value.slice(10, 12));
+    product.updateWeight(value.slice(12, 16));
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,23 +69,8 @@ export default function ProductInput() {
 
     const {id, value} = e.target
 
-    switch(id) {
-      case 'productCode': {
-        setProductCode(value);
-        break;
-      }
-      case 'lotCode': {
-        setLotCode(value);
-        break;
-      }
-      case 'processor': {
-        setProcessor(value);
-        break;
-      }
-      case 'weight': {
-        setWeight(value);
-        break;
-      }
+    if (id ==='weight') {
+      product.updateWeight(value);
     }
   }
 
@@ -103,44 +90,42 @@ export default function ProductInput() {
         break;
       }
       case 'location-selector': {
-        setProcessor(value);
+        product.updateOriginProcessor(value);
         break;
       }
     }
   }
 
   const handleDateChange = (date: Date) => {
+    const julian = dateToJulian(date);
 
-    const dayOfYear = getDayOfYear(date).toString().padStart(3, '0');
-    const year = getYear(date).toString().slice(2,4);
-
-    setLotCode(year + dayOfYear);
+    product.updateLot(julian);
   }
 
   const clear = () => {
-    setCut(undefined);
+    setScanner(undefined);
     setMeat(undefined);
-    setProductCode('')
-    setScanner('');
-    setLotCode('');
-    setProcessor(undefined);
-    setWeight('');
+    setCut(undefined);
+    product.clearAll();
   }
 
   return (
-    <Box sx={{ margin: 2, p:"2"}}>
+    <productContext.Consumer >
+      {({}) => {
+      return (
+    <Box sx={{ margin: 2 }}>
       <Grid container display={'flex'} justifyContent={'space-between'}>
         <Grid item>
           <FormControl>
             <TextField 
-              error={!!(scanner && !regex.test(scanner))}
+              error={!!(scanner && (!numericRegex.test(scanner) || !(scanner.length === 0 || scanner.length === 16)))}
               focused
-              value={scanner} 
+              value={scanner || ''} 
               label='scanner input' 
               type='text' 
               onChange={handleScarnner}
               sx= {{
-                  margin: 2
+                  marginTop: 2
               }}
               inputProps={{ maxLength: 16}}
             />
@@ -164,12 +149,13 @@ export default function ProductInput() {
             onChange={handleSelect}
             sx={{ minWidth:'200px'}}
             disabled={!!scanner}
-            value={meat?.toString() || 'none'}
+            value={meat?.toString() || ''}
           >
           {
             productList.map((product, i) => (
               <MenuItem
                 value={i}
+                key={product.type}
               >
                 {product.type}
               </MenuItem>
@@ -186,12 +172,13 @@ export default function ProductInput() {
             onChange={handleSelect}
             disabled={meat === undefined || !!scanner}
             sx={{ minWidth:'200px'}}
-            value={cut?.toString() || 'none'}
+            value={cut?.toString() || ''}
           >
           {
             meat !== undefined && productList[meat].cuts.map((cut, i) => (
               <MenuItem
                 value={i}
+                key={cut.cut}
               >
                 {cut.cut}
               </MenuItem>
@@ -214,7 +201,7 @@ export default function ProductInput() {
           <Select
             id='location-selector'
             labelId='location-selector-label'
-            value={processor || 'none'}
+            value={product.originProcessor || ''}
             disabled={!!scanner}
             name='location-selector'
             onChange={handleSelect}
@@ -236,8 +223,8 @@ export default function ProductInput() {
           <FormControl>
             <InputLabel htmlFor='weight' shrink>Weight in lbs x 100</InputLabel>
             <OutlinedInput
-              error={!!(weight && !regex.test(weight))}
-              value={weight}
+              error={!!(product.weight && !numericRegex.test(product.weight))}
+              value={product.weight || ''}
               id='weight'
               type='text'
               placeholder='weight'
@@ -254,5 +241,7 @@ export default function ProductInput() {
         </Grid>
       </Grid>
     </Box>
+      )}}
+    </productContext.Consumer>
   )
 }
