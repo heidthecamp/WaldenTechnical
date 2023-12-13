@@ -110,9 +110,6 @@ export default function ProductInput() {
   }
 
   return (
-    <productContext.Consumer >
-      {({}) => {
-      return (
     <Box sx={{ margin: 2 }}>
       <Grid container display={'flex'} justifyContent={'space-between'}>
         <Grid item>
@@ -241,7 +238,5 @@ export default function ProductInput() {
         </Grid>
       </Grid>
     </Box>
-      )}}
-    </productContext.Consumer>
   )
 }

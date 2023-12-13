@@ -7,7 +7,6 @@ import ProductContextProvider from '../../context/productContext'
 import LPDContextProvider from '../../context/lpdContext'
 import Submit from './Submit'
 
-
 export default function LPDProcessing() {
 
   return (
