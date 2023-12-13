@@ -28,7 +28,7 @@ export default function Login() {
     }
 
     return (
-        <Box component="main" sx={{ width:'100%'}}>
+        <Box component="main" sx={{ width:'100%', margin: "auto"}}>
             <Header />
             <Card sx={{  width:'100%', m:'auto', alignContent:'center', alignItems:'center' }}>
                 <CardHeader title="Login" />

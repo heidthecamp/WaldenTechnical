@@ -133,7 +133,7 @@ export default function ProductInput() {
         </Grid>
       </Grid>
 
-      <Divider />
+      <Divider light variant='middle' />
 
       <Grid container display='flex' direction='row' spacing={3} sx={{ marginTop: .5}} >
         <Grid item sx={{ marginTop: '-8px' }}>
