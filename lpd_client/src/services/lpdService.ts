@@ -1,10 +1,10 @@
 
 
-export async function putNewLDPEntry(productCode: string,
+export async function putNewLPDEntry(productCode: string,
   lot: string,
   originProcessingCenter: string,
   weight: string,
-  ldp: string,
+  lpd: string,
   reason: string,
   packer: string,
   location: string
@@ -17,7 +17,7 @@ export async function putNewLDPEntry(productCode: string,
         `lot: ${lot}\n` +
         `Origin Processing Center: ${originProcessingCenter}\n` +
         `weight: ${weight}\n` +
-        `ldp: ${ldp}\n` +
+        `lpd: ${lpd}\n` +
         `reason: ${reason}\n` +
         `packer: ${packer}\n` +
         `location: ${location}`
@@ -25,6 +25,6 @@ export async function putNewLDPEntry(productCode: string,
       resolve('OK');
     }, 500)
   })
-  return promise.then(() => ((Math.floor(Math.random() * 10) % 2) === 0)? true : false);
+  return promise.then(() => ((Math.floor(Math.random() * 10) % 3) === 0)? false : true);
 } 
 

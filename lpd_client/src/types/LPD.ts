@@ -1,0 +1,1 @@
+export type LPD = "Loss" | "Donate" | "Process"

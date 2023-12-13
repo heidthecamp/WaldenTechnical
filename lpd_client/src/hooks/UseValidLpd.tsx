@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { lpdContext } from "../context/lpdContext";
 
 
-export function UseValidLDP() {
+export function UseValidLPD() {
   const [isValid, setIsValid] = useState(false);
 
   const { lpd, reason} = useContext(lpdContext)

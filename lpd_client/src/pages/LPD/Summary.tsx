@@ -1,7 +1,7 @@
 import { Box, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material'
 import React, { useContext } from 'react'
 import { lpdContext } from '../../context/lpdContext'
-import { lastDayOfDecade } from 'date-fns'
+import { LPD } from '../../types/LPD'
 
 const lpd = [
   'Loss', 'Process', 'Donate'
@@ -13,7 +13,7 @@ export default function Summary() {
 
   const setLPD = (e: SelectChangeEvent) => {
     const {value: v} = e.target;
-    const value = v as 'Loss' | 'Process' | 'Donate' | undefined
+    const value = v as LPD | undefined
 
     updateLPD(value);
   }

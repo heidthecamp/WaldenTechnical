@@ -4,9 +4,9 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { userContext } from '../../context/userContext'
 import { lpdContext } from '../../context/lpdContext';
 import { productContext } from '../../context/productContext';
-import { UseValidLDP } from '../../hooks/UseValidLdp';
+import { UseValidLPD } from '../../hooks/UseValidLpd';
 import { UseValidProduct } from '../../hooks/UseValidProduct';
-import { putNewLDPEntry } from '../../services/ldpService';
+import { putNewLPDEntry } from '../../services/lpdService';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -20,10 +20,10 @@ export default function Submit() {
   const [errorOpen, setErrorOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const user = useContext(userContext);
-  const ldp = useContext(lpdContext);
+  const lpd = useContext(lpdContext);
   const product = useContext(productContext);
 
-  const validLdp = UseValidLDP();
+  const validlpd = UseValidLPD();
   const validProduct = UseValidProduct()
 
   const handleError = () => {
@@ -36,19 +36,19 @@ export default function Submit() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const didSubmit = await putNewLDPEntry(
+    const didSubmit = await putNewLPDEntry(
       product.productCode as string,
       product.lot as string,
       product.originProcessor as string,
       product.weight as string,
-      ldp.lpd as string,
-      ldp.reason as string,
+      lpd.lpd as string,
+      lpd.reason as string,
       user.user.userName as string,
       user.user.location as string
     )
     if (didSubmit){
       setLoading(false);
-      ldp.clearAll();
+      lpd.clearAll();
       product.clearAll();
       window.location.reload();
     }
@@ -63,13 +63,13 @@ export default function Submit() {
     <Box sx={{ margin: 2}}>
       <Snackbar open={errorOpen} autoHideDuration={7000} onClose={closeError}>
         <Alert onClose={closeError} severity='error' sx={{ width: '100%'}}>
-          Was not able to submit LDP.
+          Was not able to submit lpd.
         </Alert>
       </Snackbar>
       <Grid container display={'flex'} justifyContent={'end'} sx={{ p:2}}>
         <Grid item>
           <Button
-            disabled={!!(!validLdp || !validProduct || loading)}
+            disabled={!!(!validlpd || !validProduct || loading)}
             variant='contained'
             color='primary'
             size='large'

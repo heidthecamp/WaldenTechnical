@@ -1,5 +1,5 @@
 import UserContextProvider, { userContext } from "./context/userContext";
-import LPDProcessing from "./pages/LDP/LPDProcessing";
+import LPDProcessing from "./pages/LPD/LPDProcessing";
 import Login from "./pages/Login";
 
 function App() {
