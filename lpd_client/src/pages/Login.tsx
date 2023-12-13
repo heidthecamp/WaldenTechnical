@@ -52,7 +52,7 @@ export default function Login() {
                                 >
                                 {
                                     locations.map(loc => (
-                                        <MenuItem value={loc.address} key={loc.address}>{loc.address}</MenuItem>
+                                        <MenuItem value={loc.id} key={loc.address}>{loc.address}</MenuItem>
                                         ))
                                     }
                             </Select>
